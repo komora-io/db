@@ -2,7 +2,7 @@
 mod common;
 
 #[test]
-fn smoke_00() {
+fn transactor_00() {
     let db = open_tmp!();
 
     {

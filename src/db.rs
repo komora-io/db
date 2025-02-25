@@ -1,8 +1,10 @@
 use std::io;
 
-use crate::{Tx, WriteBatch};
+use crate::{Transactor, Tx, WriteBatch};
 
-pub struct Db {}
+pub struct Db {
+    transactors: Vec<Transactor>,
+}
 
 impl Db {
     pub fn tx(&self) -> Tx<'_> {
