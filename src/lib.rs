@@ -6,5 +6,11 @@ mod task;
 mod util;
 
 pub use config::Config;
-pub use db::Db;
+pub use db::{open, Db};
 pub use util::{Bytes, WriteBatch};
+
+const CARGO_PKG: &str = concat!(
+    std::env!("CARGO_PKG_NAME"),
+    ':',
+    std::env!("CARGO_PKG_VERSION"),
+);
