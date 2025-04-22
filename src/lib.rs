@@ -5,9 +5,9 @@ mod sync;
 mod task;
 mod util;
 
-pub use config::Config;
-pub use db::{open, Db};
-pub use util::{Bytes, WriteBatch};
+pub use crate::config::Config;
+pub use crate::db::{open, Db};
+pub use crate::util::{Bytes, WriteBatch};
 
 const CARGO_PKG: &str = concat!(
     std::env!("CARGO_PKG_NAME"),
