@@ -21,7 +21,7 @@ fault-injection = "1.0.10"
 fs2 = "0.4.3"
 fst = "0.4.7"
 fst-map = "0.1.0"
+marble = "16.0.1"
 rand = "0.8.5"
 terrors = "0.3.0"
 zerocopy = { version = "0.8.9", features = ["derive"] }
-zstd = "0.13.2"

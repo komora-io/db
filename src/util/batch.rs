@@ -2,7 +2,7 @@ use std::io;
 
 use zerocopy::{FromBytes, Immutable, IntoBytes, KnownLayout, Unaligned};
 
-use crate::{read_frame, write_frame};
+use super::{read_frame, write_frame};
 
 #[derive(
     Debug, Clone, Copy, PartialEq, Eq, FromBytes, KnownLayout, Immutable, IntoBytes, Unaligned,
