@@ -29,15 +29,24 @@ fn executor_test_00() {
 fn executor_test_01() {
     let executor = Executor::new(1);
 
-    let recv = executor.execute(async {
-        let timer = bad_timer(Duration::from_millis(100));
+    let mut receivers = vec![];
 
-        timer.await.unwrap();
+    for _ in 0..128 {
+        let recv = executor.execute(async {
+            let timer = bad_timer(Duration::from_millis(100));
 
-        1_usize
-    });
+            timer.await.unwrap();
 
-    let res: usize = recv.recv().expect("executor thread died unexpectedly");
+            1_usize
+        });
+        receivers.push(recv);
+    }
 
-    assert_eq!(res, 1);
+    for _ in 0..128 {
+        let recv = receivers.pop().unwrap();
+
+        let res: usize = recv.recv().expect("executor thread died unexpectedly");
+
+        assert_eq!(res, 1);
+    }
 }

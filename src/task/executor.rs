@@ -158,6 +158,7 @@ impl Executor {
         }
     }
 
+    /// Spawn a plain closure on the [`Executor`].
     pub fn spawn<F, R>(&self, f: F) -> ReceiveOne<R>
     where
         F: 'static + FnOnce() -> R + Send,
@@ -171,6 +172,7 @@ impl Executor {
         rx
     }
 
+    /// Spawn a [`Future`] on the [`Executor`].
     pub fn execute<F, R>(&self, f: F) -> ReceiveOne<R>
     where
         F: 'static + Future<Output = R> + Send,

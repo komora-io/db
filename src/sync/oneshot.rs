@@ -53,7 +53,7 @@ pub struct ReceiveOne<T> {
     shared: Arc<Shared<T>>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct SenderDropped;
 
 impl<T> SendOne<T> {
