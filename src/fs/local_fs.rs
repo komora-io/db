@@ -1,11 +1,10 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use super::{
-    read_exact_at, write_all_at, Error, FileAlreadyExists, FileDoesNotExist, Fs, Unavailable,
+    Error, FileAlreadyExists, FileDoesNotExist, Fs, Unavailable,
     UnexpectedEof,
 };
 
-use terrors::OneOf;
 
 pub struct LocalFs {}
 

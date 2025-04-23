@@ -2,22 +2,12 @@ use std::collections::BTreeMap;
 use std::io;
 use std::sync::{Arc, Mutex};
 
-pub use super::{InterestFilter, Transactor, Tx};
+pub use super::{Transactor, Tx};
 pub use crate::util::{Bytes, WriteBatch};
 use crate::Config;
 
-pub fn open<P: AsRef<std::path::Path>>(path: P) -> std::io::Result<Db> {
-    let config = Config {
-        path: path.as_ref().to_path_buf(),
-    };
-
-    Ok(Db {
-        transactors: Vec::new(),
-        storage: std::sync::Arc::new(std::sync::Mutex::new(std::collections::BTreeMap::new())),
-    })
-}
-
 pub struct Db {
+    pub(crate) config: Config,
     pub(crate) transactors: Vec<Transactor>,
     pub(crate) storage: Arc<Mutex<BTreeMap<Bytes, Bytes>>>,
 }

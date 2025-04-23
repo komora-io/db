@@ -3,8 +3,6 @@ mod local_fs;
 mod mem_fs;
 
 pub(crate) use async_fs::AsyncFs;
-use local_fs::LocalFs;
-use mem_fs::MemFs;
 
 use std::path::Path;
 
@@ -38,16 +36,16 @@ where
 }
 
 #[derive(Clone, Copy, Debug)]
-struct FileAlreadyExists;
+pub struct FileAlreadyExists;
 
 #[derive(Clone, Copy, Debug)]
-struct FileDoesNotExist;
+pub struct FileDoesNotExist;
 
 #[derive(Clone, Copy, Debug)]
-struct UnexpectedEof;
+pub struct UnexpectedEof;
 
 #[derive(Clone, Copy, Debug)]
-struct Unavailable;
+pub struct Unavailable;
 
 #[cfg(unix)]
 mod unix;

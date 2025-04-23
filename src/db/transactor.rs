@@ -1,6 +1,7 @@
 use std::ops::{Bound, RangeBounds};
 
-use crate::util::{Bytes, CollectionId, WriteBatch};
+use crate::util::{Bytes, WriteBatch};
+use crate::CollectionId;
 
 pub enum InterestFilter {
     Key(Bytes),

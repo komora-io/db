@@ -50,3 +50,29 @@ fn executor_test_01() {
         assert_eq!(res, 1);
     }
 }
+
+#[test]
+fn executor_test_02() {
+    let executor = Executor::new(1);
+
+    let mut receivers = vec![];
+
+    for _ in 0..128 {
+        let recv = executor.execute(async {
+            let timer = bad_timer(Duration::from_millis(100));
+
+            timer.await.unwrap();
+
+            1_usize
+        });
+        receivers.push(recv);
+    }
+
+    for _ in 0..128 {
+        let recv = receivers.pop().unwrap();
+
+        let res: usize = recv.recv().expect("executor thread died unexpectedly");
+
+        assert_eq!(res, 1);
+    }
+}

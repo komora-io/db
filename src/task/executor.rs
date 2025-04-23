@@ -8,7 +8,7 @@ use std::task::{Context, Poll, Wake, Waker};
 use std::thread::{Builder, JoinHandle};
 
 use crate::sync::Mpmc;
-use crate::sync::{filled_oneshot, oneshot, ReceiveOne};
+use crate::sync::{oneshot, ReceiveOne};
 
 type PinBoxFuture = Pin<Box<dyn Future<Output = ()> + Send>>;
 
@@ -23,6 +23,7 @@ enum Work {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[repr(transparent)]
 struct FutureId {
     id: u64,
 }
