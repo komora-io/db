@@ -30,7 +30,7 @@ struct FutureId {
 struct WorkerState {
     mpmc: Mpmc<Work>,
     future_counter: AtomicU64,
-    future_registry: RwLock<HashMap<FutureId, Arc<Mutex<Option<(PinBoxFuture, Waker)>>>>>,
+    future_registry: RwLock<HashMap<FutureId, Arc<Mutex<(PinBoxFuture, Waker)>>>>,
 }
 
 struct ExecutorWaker {
@@ -61,7 +61,7 @@ impl WorkerState {
 
     fn poll(self: &Arc<Self>, future_id: FutureId) {
         let future_waker_opt_mu = {
-            let mut future_registry = self.future_registry.read().unwrap();
+            let future_registry = self.future_registry.read().unwrap();
 
             let Some(future_waker_opt_mu) = future_registry.get(&future_id) else {
                 return;
@@ -71,15 +71,13 @@ impl WorkerState {
         };
 
         let mut future_waker_opt_unlocked = future_waker_opt_mu.lock().unwrap();
-        let (mut future, waker) = future_waker_opt_unlocked.take().unwrap();
+        let (ref mut future, waker) = &mut *future_waker_opt_unlocked;
 
         let mut cx = Context::from_waker(&waker);
 
         if let Poll::Ready(()) = Future::poll(future.as_mut(), &mut cx) {
             return;
         }
-
-        *future_waker_opt_unlocked = Some((future, waker));
     }
 }
 
@@ -183,10 +181,7 @@ impl Executor {
 
         let mut future_registry = self.worker_state.future_registry.write().unwrap();
 
-        future_registry.insert(
-            future_id,
-            Arc::new(Mutex::new(Some((future, executor_waker)))),
-        );
+        future_registry.insert(future_id, Arc::new(Mutex::new((future, executor_waker))));
 
         drop(future_registry);
 
