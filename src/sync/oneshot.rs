@@ -4,6 +4,18 @@ use std::sync::{Arc, Condvar, Mutex};
 use std::task::Waker;
 use std::task::{Context, Poll};
 
+pub fn filled_oneshot<T>(value: T) -> ReceiveOne<T> {
+    let shared: Arc<Shared<T>> = Arc::new(Shared {
+        state: Mutex::new(State {
+            value: Some(Ok(value)),
+            waker: None,
+        }),
+        cv: Condvar::new(),
+    });
+
+    ReceiveOne { shared }
+}
+
 pub fn oneshot<T>() -> (SendOne<T>, ReceiveOne<T>) {
     let shared: Arc<Shared<T>> = Arc::default();
 

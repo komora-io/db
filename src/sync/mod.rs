@@ -2,4 +2,4 @@ mod mpmc;
 mod oneshot;
 
 pub use mpmc::Mpmc;
-pub use oneshot::{oneshot, ReceiveOne, SendOne};
+pub use oneshot::{filled_oneshot, oneshot, ReceiveOne, SendOne};
