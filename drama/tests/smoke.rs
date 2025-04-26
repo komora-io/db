@@ -1,7 +1,7 @@
 use std::time::Duration;
 
-use super::Executor;
-use crate::sync::{oneshot, ReceiveOne};
+use drama::Executor;
+use komora_sync::{oneshot, ReceiveOne};
 
 fn bad_timer(duration: Duration) -> ReceiveOne<()> {
     let (tx, rx) = oneshot();

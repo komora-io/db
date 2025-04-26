@@ -7,8 +7,7 @@ use std::sync::{Arc, Mutex, RwLock};
 use std::task::{Context, Poll, Wake, Waker};
 use std::thread::{Builder, JoinHandle};
 
-use crate::sync::Mpmc;
-use crate::sync::{oneshot, ReceiveOne};
+use komora_sync::{oneshot, Mpmc, ReceiveOne};
 
 type PinBoxFuture = Pin<Box<dyn Future<Output = ()> + Send>>;
 
@@ -72,7 +71,7 @@ impl WorkerState {
         };
 
         let mut future_waker_opt_unlocked = future_waker_opt_mu.lock().unwrap();
-        let (ref mut future, waker) = &mut *future_waker_opt_unlocked;
+        let (future, waker) = &mut *future_waker_opt_unlocked;
 
         let mut cx = Context::from_waker(&waker);
 
