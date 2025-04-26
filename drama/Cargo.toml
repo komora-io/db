@@ -2,6 +2,14 @@
 name = "drama"
 version = "0.1.0"
 edition = "2024"
+authors = ["Tyler Neely <tylerneely@gmail.com>"]
+documentation = "https://docs.rs/drama/"
+description = "multitenant scheduler for the komora db project"
+license = "MIT OR Apache-2.0"
+homepage = "https://github.com/komora-io/db/drama"
+repository = "https://github.com/komora-io/db/drama"
+categories = ["asynchronous", "concurrency", "algorithms"]
+readme = "README.md"
 
 [dependencies]
 komora-sync = "0.1.0"
