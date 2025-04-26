@@ -1,0 +1,27 @@
+[package]
+name = "db"
+version = "0.0.0-alpha.101"
+edition = "2021"
+authors = ["Tyler Neely <tylerneely@gmail.com>"]
+documentation = "https://docs.rs/db/"
+description = "Lightweight high-performance pure-rust transactional embedded database."
+license = "MIT OR Apache-2.0"
+homepage = "https://github.com/komora-io/db"
+repository = "https://github.com/komora-io/db"
+keywords = ["redis", "mongo", "sqlite", "lmdb", "rocksdb"]
+categories = ["database-implementations", "concurrency", "data-structures", "algorithms", "caching"]
+readme = "README.md"
+exclude = ["benchmarks", "examples", "bindings", "scripts", "experiments"]
+
+[dependencies]
+bincode = "1.3.3"
+bloomfilter = "1.0.13"
+crc32fast = "1.4.2"
+fault-injection = "1.0.10"
+fs2 = "0.4.3"
+fst = "0.4.7"
+fst-map = "0.1.0"
+marble = "16.0.1"
+rand = "0.8.5"
+terrors = { version = "0.3.3" }
+zerocopy = { version = "0.8.9", features = ["derive"] }
