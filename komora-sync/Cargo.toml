@@ -1,0 +1,14 @@
+[package]
+name = "komora-sync"
+version = "0.1.0"
+edition = "2024"
+authors = ["Tyler Neely <tylerneely@gmail.com>"]
+documentation = "https://docs.rs/komora-sync/"
+description = "Synchronization structures for the komora db project"
+license = "MIT OR Apache-2.0"
+homepage = "https://github.com/komora-io/komora-sync"
+repository = "https://github.com/komora-io/komora-sync"
+categories = ["database-implementations", "concurrency", "data-structures", "algorithms", "caching"]
+readme = "README.md"
+
+[dependencies]
