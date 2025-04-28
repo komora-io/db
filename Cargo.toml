@@ -1,6 +1,8 @@
 [workspace]
 resolver = "2"
 members = [
-    "db", "komora-sync", "drama",
+  "db",
+  "drama",
+  "komora-sync",
 ]
 

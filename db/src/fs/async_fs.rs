@@ -1,8 +1,9 @@
 use std::path::Path;
 use std::sync::Arc;
 
+use drama::Executor;
+
 use super::{Error, FileAlreadyExists, FileDoesNotExist, Fs, Unavailable, UnexpectedEof};
-use crate::Executor;
 
 pub(crate) struct AsyncFs {
     fs: Arc<dyn Fs + Send + Sync>,

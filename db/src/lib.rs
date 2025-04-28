@@ -3,8 +3,6 @@ mod db;
 mod fs;
 mod num;
 mod object_store;
-mod sync;
-mod task;
 mod util;
 
 pub use crate::config::Config;
@@ -18,4 +16,3 @@ const CARGO_PKG: &str = concat!(
 );
 
 use num::{CollectionId, Lsn, VirtualStorageAddress};
-use task::Executor;

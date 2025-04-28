@@ -110,20 +110,20 @@ where
 
 #[test]
 fn smoke_fst_map() {
-    use rand::{thread_rng, Rng};
+    use rand::{rng, Rng};
 
     const N_TESTS: usize = 1024;
 
     const TEST_SIZE: usize = 1024;
 
-    let mut rng = thread_rng();
+    let mut rng = rng();
 
     let before = std::time::Instant::now();
 
     for _ in 0..N_TESTS {
         let model: BTreeMap<Vec<u8>, Header> = (0..TEST_SIZE)
             .map(|_| {
-                let k: u64 = rng.gen();
+                let k: u64 = rng.random();
                 let k_buf = k.to_le_bytes();
 
                 (
@@ -146,4 +146,3 @@ fn smoke_fst_map() {
     let wps = (N_TESTS * TEST_SIZE) as u128 * 1000 / before.elapsed().as_millis();
     dbg!(wps);
 }
-
