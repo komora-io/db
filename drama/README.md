@@ -1,27 +1,42 @@
 # drama
 
 Multi-threaded a/sync Scheduler that prioritizes harmonious execution
-of multitenant heterogeneous workloads:
+of multitenant heterogeneous service workloads in the presence of overload:
 
 * async tasks
 * blocking IO
 * compute-heavy work
 
-Anyone who has run high scale multitenant rust workloads has felt pain
-when trying to achieve a reasonable latency/throughput position with
-a reasonable hardware budget. When using executors that don't have any
-notion of multi-tenant fairness or multi-resource scheduling efficiency,
-it's not uncommon at all for people to try to statically partition certain
-types of tasks across different executors or threadpools and end up with a
-badly tuned, messy, bug-prone, expensive system that kind of lets you get
-sleep most of the time. When using an executor that shares a static blocking
-threadpool across all tasks and when many tasks try to use blocking threads on
-that threadpool, it's not uncommon at all for mysterious deadlocks to start
-happening in production. Nein danke!
+#### insights
+
+* An executor that looks like an infinite queue will oversaturate and destroy your latency.
+* An executor that is effectively random or round robin in its work queue management is only
+  appropriate for low intensity homogeneous workloads. When you are making a large scale system cost
+  effective and trying to reduce server costs, you will sometimes be saturating resources
+  and you need to stay available while doing so. The scheduler should not deadlock or cause
+  unbounded resource usage in the presence of overload, as others do.
+* It's a particular processes's job to reject work when it reaches saturation
+  so that an upstream load balancer can actually do its job and balance the load.
+  Ideally a service can understand its actual degree of saturation and communicate that
+  early to a load balancing system to achieve better results with fewer explicit rejections.
+* For most workloads, accepts cause reads, reads cause compute, compute causes writes.
+* Writes tend to be associated with the end of resource lifetimes.
+  They should be prioritized highly so that resources can be released soon after.
+* When writes are not possible, compute will often lead to writes, so they should come next.
+* Reads lead to more resources being consumed and should only be allowed when compute and
+  writes are not already saturated (lining up to be serviced).
+* Accepts lead to reads and should likewise only be serviced after the other classes of work.
+* No class of work (accepts, reads, compute, writes) should be strictly prioritized over others,
+  as many workloads deviate from the high-level general case, and priorities should actually
+  be slightly weak to prevent starvation.
+* The above prioritization should occur on a per-tenant basis, rather than process-wide.
+  We want to prioritize newer work over older work in general to serve low latency workloads
+  well.
 
 #### priorities
 
 * observability - operators should easily be able to see the scheduler's view of the system:
+  * how utilized or saturated is the process overall?
   * what are the heavy hitter tenants?
   * what tenants are associated with high queue depths?
   * what tenants get throttled the most while ensuring fairness for others?
@@ -41,4 +56,6 @@ happening in production. Nein danke!
 
 #### dedication
 
-dedicated to the many burnouts induced and friendships destroyed by the drama surrounding async rust.
+Dedicated to async rust's many destroyed friendships and burnouts.
+Hopefully this reduces the latter a little for those working on
+tenant-dense large scale systems.
