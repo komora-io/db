@@ -1,36 +1,19 @@
-use std::cmp::{Eq, Ord, Ordering, PartialEq, PartialOrd};
 use std::collections::BinaryHeap;
 use std::sync::{Condvar, Mutex};
 
+use crate::Prioritized;
+
+#[derive(Debug)]
 pub struct PriorityQueue<T> {
     q: Mutex<BinaryHeap<Prioritized<T>>>,
     cv: Condvar,
 }
 
-struct Prioritized<T> {
-    priority: u64,
-    t: T,
-}
-
-impl<T> Ord for Prioritized<T> {
-    fn cmp(&self, rhs: &Prioritized<T>) -> Ordering {
-        self.priority.cmp(&rhs.priority)
+impl<T> Default for PriorityQueue<T> {
+    fn default() -> Self {
+        Self::new()
     }
 }
-
-impl<T> PartialOrd for Prioritized<T> {
-    fn partial_cmp(&self, rhs: &Prioritized<T>) -> Option<Ordering> {
-        Some(self.cmp(rhs))
-    }
-}
-
-impl<T> PartialEq for Prioritized<T> {
-    fn eq(&self, rhs: &Prioritized<T>) -> bool {
-        self.priority == rhs.priority
-    }
-}
-
-impl<T> Eq for Prioritized<T> {}
 
 impl<T> PriorityQueue<T> {
     pub fn new() -> PriorityQueue<T> {

@@ -1,6 +1,6 @@
 [package]
 name = "komora-sync"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 authors = ["Tyler Neely <tylerneely@gmail.com>"]
 documentation = "https://docs.rs/komora-sync/"

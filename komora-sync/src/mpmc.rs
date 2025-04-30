@@ -1,9 +1,16 @@
 use std::collections::VecDeque;
 use std::sync::{Condvar, Mutex};
 
+#[derive(Debug)]
 pub struct Mpmc<T> {
     q: Mutex<VecDeque<T>>,
     cv: Condvar,
+}
+
+impl<T> Default for Mpmc<T> {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl<T> Mpmc<T> {
