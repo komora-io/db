@@ -27,6 +27,13 @@ impl<T> SegmentedPriorityQueue<T> {
         }
     }
 
+    pub fn push(&self, t: T, priority: u64) {
+        let mut q = self.writer.lock().unwrap();
+        q.push(Prioritized { t, priority });
+        drop(q);
+        self.cv.notify_one();
+    }
+
     /// Higher priority tends to gets popped first.
     ///
     /// The internal bip buffer of priority queues gets
@@ -64,13 +71,6 @@ impl<T> SegmentedPriorityQueue<T> {
     /// assert_eq!(pq.pop(), 4);
     /// assert_eq!(pq.pop(), 3);
     /// ```
-    pub fn push(&self, t: T, priority: u64) {
-        let mut q = self.writer.lock().unwrap();
-        q.push(Prioritized { t, priority });
-        drop(q);
-        self.cv.notify_one();
-    }
-
     pub fn pop(&self) -> T {
         let mut q = self.reader.lock().unwrap();
 
