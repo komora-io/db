@@ -6,7 +6,7 @@ use std::sync::{Arc, Mutex, Weak};
 use std::task::{Context, Poll, Wake, Waker};
 use std::thread::{Builder, JoinHandle};
 
-use komora_sync::{oneshot, Mpmc, ReceiveOne};
+use komora_sync::{oneshot, PriorityQueue, ReceiveOne};
 
 use crate::{Classification, TenantId};
 
@@ -29,7 +29,7 @@ struct FutureId {
 }
 
 struct WorkerState {
-    mpmc: Mpmc<Work>,
+    pq: PriorityQueue<Work>,
     future_counter: AtomicU64,
 }
 
@@ -57,22 +57,37 @@ struct ExecutorWaker {
     worker_state: Arc<WorkerState>,
     task_state: Arc<Mutex<TaskState>>,
     future_id: FutureId,
+    tenant_id: TenantId,
+    classification: Classification,
 }
 
 impl Wake for ExecutorWaker {
     fn wake(self: Arc<Self>) {
         let task_state = self.task_state.clone();
+        let priority = self
+            .worker_state
+            .priority_for_tenant_id_and_classification(self.tenant_id, self.classification);
 
-        self.worker_state.mpmc.send(Work::Work(Box::new(move || {
-            task_state.lock().unwrap().poll()
-        })));
+        self.worker_state.pq.push(
+            Work::Work(Box::new(move || task_state.lock().unwrap().poll())),
+            priority,
+        );
     }
 }
 
 impl WorkerState {
+    fn priority_for_tenant_id_and_classification(
+        &self,
+        tenant_id: TenantId,
+        classification: Classification,
+    ) -> u64 {
+        // TODO: proper prioritization
+        0
+    }
+
     fn run(self: Arc<Self>) {
         loop {
-            match self.mpmc.recv() {
+            match self.pq.pop() {
                 Work::Work(work) => (work)(),
                 Work::ShutDown => return,
             }
@@ -83,7 +98,7 @@ impl WorkerState {
 impl Drop for Executor {
     fn drop(&mut self) {
         for _ in &self.workers {
-            self.worker_state.mpmc.send(Work::ShutDown);
+            self.worker_state.pq.push(Work::ShutDown, u64::MIN);
         }
         for join_handle in std::mem::take(&mut self.workers) {
             join_handle.join().unwrap();
@@ -106,7 +121,7 @@ impl Executor {
         let mut workers = vec![];
 
         let worker_state = Arc::new(WorkerState {
-            mpmc: Mpmc::new(),
+            pq: PriorityQueue::new(),
             future_counter: AtomicU64::new(0),
         });
 
@@ -139,10 +154,16 @@ impl Executor {
         R: 'static + Send,
     {
         let (tx, rx) = oneshot();
-        self.worker_state.mpmc.send(Work::Work(Box::new(move || {
-            let ret: R = (f)();
-            tx.send(ret);
-        })));
+        let priority = self
+            .worker_state
+            .priority_for_tenant_id_and_classification(tenant_id, classification);
+        self.worker_state.pq.push(
+            Work::Work(Box::new(move || {
+                let ret: R = (f)();
+                tx.send(ret);
+            })),
+            priority,
+        );
         rx
     }
 
@@ -173,6 +194,8 @@ impl Executor {
 
         let executor_waker: Arc<ExecutorWaker> = Arc::new(ExecutorWaker {
             future_id,
+            tenant_id,
+            classification,
             task_state: Arc::new(Mutex::new(TaskState {
                 pin_box_future: pin_box_future,
                 waker: None,

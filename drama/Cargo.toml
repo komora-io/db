@@ -12,5 +12,5 @@ categories = ["asynchronous", "concurrency", "algorithms"]
 readme = "README.md"
 
 [dependencies]
-komora-sync = "0.1.0"
+komora-sync = "0.1.1"
 concurrent-map = "5.0.37"
