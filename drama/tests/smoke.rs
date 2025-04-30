@@ -1,7 +1,8 @@
 use std::time::Duration;
 
-use drama::Executor;
 use komora_sync::{oneshot, ReceiveOne};
+
+use drama::{Classification, Executor, TenantId};
 
 fn bad_timer(duration: Duration) -> ReceiveOne<()> {
     let (tx, rx) = oneshot();
@@ -17,8 +18,10 @@ fn bad_timer(duration: Duration) -> ReceiveOne<()> {
 #[test]
 fn executor_test_00() {
     let executor = Executor::new(1);
+    let tenant_id = TenantId::new(0);
+    let classification = Classification::Compute;
 
-    let recv = executor.execute(async { 1_usize });
+    let recv = executor.execute(tenant_id, classification, async { 1_usize });
 
     let res: usize = recv.recv().expect("executor thread died unexpectedly");
 
@@ -28,11 +31,13 @@ fn executor_test_00() {
 #[test]
 fn executor_test_01() {
     let executor = Executor::new(1);
+    let tenant_id = TenantId::new(0);
+    let classification = Classification::Compute;
 
     let mut receivers = vec![];
 
     for _ in 0..128 {
-        let recv = executor.execute(async {
+        let recv = executor.execute(tenant_id, classification, async {
             let timer = bad_timer(Duration::from_millis(100));
 
             timer.await.unwrap();
@@ -54,11 +59,13 @@ fn executor_test_01() {
 #[test]
 fn executor_test_02() {
     let executor = Executor::new(1);
+    let tenant_id = TenantId::new(0);
+    let classification = Classification::Compute;
 
     let mut receivers = vec![];
 
     for _ in 0..128 {
-        let recv = executor.execute(async {
+        let recv = executor.execute(tenant_id, classification, async {
             let timer = bad_timer(Duration::from_millis(100));
 
             timer.await.unwrap();

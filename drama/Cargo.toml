@@ -13,3 +13,4 @@ readme = "README.md"
 
 [dependencies]
 komora-sync = "0.1.0"
+concurrent-map = "5.0.37"
