@@ -59,12 +59,12 @@ fn executor_test_01() {
 #[test]
 fn executor_test_02() {
     let executor = Executor::new(1);
-    let tenant_id = TenantId::new(0);
     let classification = Classification::Compute;
 
     let mut receivers = vec![];
 
-    for _ in 0..128 {
+    for i in 0..128 {
+        let tenant_id = TenantId::new(i % 8);
         let recv = executor.execute(tenant_id, classification, async {
             let timer = bad_timer(Duration::from_millis(100));
 

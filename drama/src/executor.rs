@@ -8,7 +8,7 @@ use std::thread::{Builder, JoinHandle};
 
 use komora_sync::{oneshot, PriorityQueue, ReceiveOne};
 
-use crate::{Classification, TenantId};
+use crate::{Classification, TenantId, UtilizationSketch};
 
 type PinBoxFuture = Pin<Box<dyn Future<Output = ()> + Send>>;
 
@@ -31,6 +31,7 @@ struct FutureId {
 struct WorkerState {
     pq: PriorityQueue<Work>,
     future_counter: AtomicU64,
+    utilization_sketch: Mutex<UtilizationSketch>,
 }
 
 struct TaskState {
@@ -81,8 +82,26 @@ impl WorkerState {
         tenant_id: TenantId,
         classification: Classification,
     ) -> u64 {
-        // TODO: proper prioritization
-        0
+        // most significant: tenant gets prioritized inversely to their utilization
+        // next, weakly prioritize writes > compute > reads > accepts and spawns
+        let mut utilization_sketch = self.utilization_sketch.lock().unwrap();
+        let relative_proportion =
+            utilization_sketch.update_and_get_relative_proportion(tenant_id, 1);
+        drop(utilization_sketch);
+
+        let utilization_based_priority = (1.0 - relative_proportion) * 100.0;
+
+        let operation_factor = match classification {
+            Classification::Accept => 0.3,
+            Classification::Read => 0.4,
+            Classification::Compute => 0.6,
+            Classification::Write => 1.0,
+        };
+
+        let base_priority = (utilization_based_priority * operation_factor) as u64;
+
+        // TODO add some jitter
+        base_priority
     }
 
     fn run(self: Arc<Self>) {
@@ -121,6 +140,7 @@ impl Executor {
         let mut workers = vec![];
 
         let worker_state = Arc::new(WorkerState {
+            utilization_sketch: Mutex::default(),
             pq: PriorityQueue::new(),
             future_counter: AtomicU64::new(0),
         });

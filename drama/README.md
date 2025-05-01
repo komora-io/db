@@ -1,15 +1,19 @@
 # drama
 
-Multi-threaded a/sync Scheduler that prioritizes harmonious execution
-of multitenant heterogeneous service workloads in the presence of overload:
+An a/sync scheduler that aims to keep larger scale distributed systems alive
+in the presence of overload.
 
-* async tasks
-* blocking IO
-* compute-heavy work
+This isn't a general purpose async executor. It's specifically for systems that
+will occasionally become overloaded while serving multitenant heterogenous workloads,
+and need to gracefully degrade rather than completely lock up. It doesn't act like
+an infinite queue. It is utilization and saturation-aware, and exerts backpressure.
+It does not deadlock the entire system when bursts of tasks are spawned that may
+perform blocking work by having implicit global dependencies on a shared static
+blocking threadpool (side-eye intensifies).
 
-#### insights
+#### key features: backpressure and multi-tenant fairness
 
-* An executor that looks like an infinite queue will oversaturate and destroy your latency.
+* An executor that looks like an infinite queue will eventually oversaturate and destroy your latency.
 * An executor that is effectively random or round robin in its work queue management is only
   appropriate for low intensity homogeneous workloads. When you are making a large scale system cost
   effective and trying to reduce server costs, you will sometimes be saturating resources

@@ -1,11 +1,14 @@
 mod executor;
+mod utilization_sketch;
 
 pub use executor::Executor;
+
+use utilization_sketch::UtilizationSketch;
 
 #[repr(transparent)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct TenantId {
-    id: u64,
+    pub(crate) id: u64,
 }
 
 impl TenantId {
